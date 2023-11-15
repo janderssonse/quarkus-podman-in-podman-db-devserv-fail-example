@@ -1,0 +1,29 @@
+FROM quay.io/podman/stable:v4.7.2
+
+ENV PODMANUSR_HOME=/home/podman
+
+RUN dnf upgrade -y --refresh  \
+  && dnf install -y --nodocs --setopt install_weak_deps=False \
+  java-17-openjdk-devel \
+  maven \
+  nodejs \
+  npm \
+  ca-certificates \
+  which \
+  && mkdir $PODMANUSR_HOME/.m2 \
+  && ln -s /usr/bin/podman /bin/docker \
+  && chown -R podman:podman $PODMANUSR_HOME/.m2/ \
+  && mkdir $PODMANUSR_HOME/app \
+  && chown -R podman:podman $PODMANUSR_HOME/app \
+  && dnf clean all \
+  && rm -rf /var/cache/yum
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17
+ENV NODE_OPTIONS=--use-openssl-ca
+
+WORKDIR $PODMANUSR_HOME/app
+
+USER podman
+
+
+CMD ["podman","info"]
